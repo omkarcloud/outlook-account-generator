@@ -1,0 +1,6 @@
+{
+  "scripts": {
+    "upload": "rm -rf dist/ chromedriver_autoinstaller_fix.egg-info  MANIFEST && python setup.py sdist && pip install -e . && python -m twine upload dist/* --verbose",
+    "install": "rm -rf dist/ chromedriver_autoinstaller_fix.egg-info  MANIFEST && python setup.py sdist && pip install -e ."
+  }
+}
