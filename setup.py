@@ -7,6 +7,11 @@ from setuptools import setup
 __author__ = "Chetan Jain <chetan@omkar.cloud>"
 
 
+install_requires = [
+    "requests",
+    "packaging"
+]
+extras_require = {}
 with open("README.md") as readme_file:
     long_description = readme_file.read()
 
@@ -29,7 +34,7 @@ elif sys.argv[-1] == "clean":
 
 setup(
     name="chromedriver-autoinstaller-fix",
-    version="1.0.0",
+    version="1.0.3",
     author='Chetan Jain',
     author_email='chetan@omkar.cloud',
     description="Automatically install chromedriver that supports the currently installed version of chrome.",
@@ -58,4 +63,6 @@ setup(
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
     ],
+    install_requires=install_requires,
+    extras_require=extras_require,
 )

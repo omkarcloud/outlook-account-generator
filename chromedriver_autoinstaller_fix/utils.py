@@ -3,6 +3,7 @@
 Helper functions for filename and URL generation.
 """
 
+import requests
 import json
 import logging
 import os
@@ -10,8 +11,6 @@ import re
 import shutil
 import subprocess
 import sys
-import urllib.error
-import urllib.request
 import xml.etree.ElementTree as elemTree
 import zipfile
 from io import BytesIO
@@ -227,7 +226,13 @@ def get_matched_chromedriver_version(chrome_version, no_ssl=False):
         browser_major_version = get_major_version(chrome_version)
         version_url = "googlechromelabs.github.io/chrome-for-testing/latest-versions-per-milestone-with-downloads.json"
         version_url = f"http://{version_url}" if no_ssl else f"https://{version_url}"
-        latest_version_per_milestone = json.load(urllib.request.urlopen(version_url))
+        latest_version_per_milestone = None
+        try:
+            latest_version_per_milestone = json.loads(requests.get(version_url).text)
+        except:
+            latest_version_per_milestone = json.loads(requests.get(version_url, verify=False).text)
+
+        
         
         # Determine if driver download is available for milestone
         milestone = latest_version_per_milestone['milestones'].get(browser_major_version)
@@ -242,8 +247,18 @@ def get_matched_chromedriver_version(chrome_version, no_ssl=False):
     else:
         version_url = "chromedriver.storage.googleapis.com"
         version_url = "http://" + version_url if no_ssl else "https://" + version_url
-        doc = urllib.request.urlopen(version_url).read()
-        root = elemTree.fromstring(doc)
+        
+        response = None
+        try:
+            response = requests.get(version_url)
+        except:
+            response = requests.get(version_url, verify=False)
+
+        # Check if the request was successful
+        if response.status_code == 200:
+            doc = response.content
+            root = elemTree.fromstring(doc)
+
         for k in root.iter("{http://doc.s3.amazonaws.com/2006-03-01}Key"):
             if k.text.find(get_major_version(chrome_version) + ".") == 0:
                 # Old system doesn't provide download options so return None
@@ -308,12 +323,16 @@ def download_chromedriver(path: Optional[AnyStr] = None, no_ssl: bool = False):
             
         url = get_chromedriver_url(chromedriver_version=chromedriver_version, download_options=download_options, no_ssl=no_ssl)
         try:
-            response = urllib.request.urlopen(url)
-            if response.getcode() != 200:
-                raise urllib.error.URLError("Not Found")
-        except urllib.error.URLError:
-            raise RuntimeError(f"Failed to download chromedriver archive: {url}")
-        archive = BytesIO(response.read())
+            response = None
+            try:
+              response = requests.get(url)
+            except:
+              response = requests.get(url, verify=False)
+            response.raise_for_status()  # Will raise an HTTPError if the HTTP request returned an unsuccessful status code
+        except requests.exceptions.HTTPError as err:
+            raise RuntimeError(f"Failed to download chromedriver archive: {url}") from err
+
+        archive = BytesIO(response.content)
         with zipfile.ZipFile(archive) as zip_file:
             # v115+ have files in subdirectories- need to adjust filename before extracting
             for zip_info in zip_file.infolist():
