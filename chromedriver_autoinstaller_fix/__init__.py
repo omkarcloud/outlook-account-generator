@@ -7,7 +7,7 @@ from typing import AnyStr, Optional
 from . import utils
 
 
-def install(cwd: bool = False, path: Optional[AnyStr] = None, no_ssl: bool = False):
+def install(cwd: bool = False, path: Optional[AnyStr] = None, path_inc_major: bool = True, no_ssl: bool = False):
     """
     Appends the directory of the chromedriver binary file to PATH.
 
@@ -18,7 +18,7 @@ def install(cwd: bool = False, path: Optional[AnyStr] = None, no_ssl: bool = Fal
     """
     if cwd:
         path = os.getcwd()
-    chromedriver_filepath = utils.download_chromedriver(path, no_ssl)
+    chromedriver_filepath = utils.download_chromedriver(path, path_inc_major, no_ssl)
     if not chromedriver_filepath:
         logging.debug("Can not download chromedriver.")
         return
