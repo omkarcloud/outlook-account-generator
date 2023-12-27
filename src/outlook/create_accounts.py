@@ -2,6 +2,7 @@ from botasaurus.decorators_utils import create_directory_if_not_exists
 import traceback
 from botasaurus import *
 from .create_accounts_utils import *
+import time
             
 
 def createTempProfile(username, cookies):
@@ -81,27 +82,36 @@ def create_accounts(driver: AntiDetectDriver, data):
         def sign_up():
 
             type_email(driver, email)
+            time.sleep(3)      
             
 
             press_next_btn(driver)
-            
+            time.sleep(3)  
             verify_username_is_unique(driver)
-            
+            time.sleep(3)  
             type_password(driver, password)
+            time.sleep(3)  
 
             press_next_btn(driver)
+            time.sleep(3)  
 
             type_first_name(driver, first_name)
+            time.sleep(3)  
             
             type_last_name(driver, last_name)
+            time.sleep(3)  
 
             press_next_btn(driver)
+            time.sleep(3)  
 
             type_birth_month(driver, dob_month)
+            time.sleep(3)  
             
             type_birth_year(driver, dob_year)
+            time.sleep(3)  
 
             enter_birth_day(driver, dob_day)
+            time.sleep(3)  
 
             if captcha:
                 driver.execute_file("spy-token.js")
